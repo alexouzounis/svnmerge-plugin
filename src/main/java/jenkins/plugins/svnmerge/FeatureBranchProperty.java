@@ -171,32 +171,37 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
         }
         return build.getModuleRoot().act(new FileCallable<Long>() {
             public Long invoke(File mr, VirtualChannel virtualChannel) throws IOException {
+                final PrintStream logger = listener.getLogger();
+                final boolean[] foundConflict = new boolean[1];
+            	ISVNEventHandler printHandler = new SubversionEventHandlerImpl(logger,mr) {
+                    @Override
+                    public void handleEvent(SVNEvent event, double progress) throws SVNException {
+                        super.handleEvent(event, progress);
+						if (event.getContentsStatus() == SVNStatusType.CONFLICTED
+								|| event.getContentsStatus() == SVNStatusType.CONFLICTED_UNRESOLVED) {
+							foundConflict[0] = true;
+						}
+                    }
+                };
+                
+                SvnClientManager svnm = SubversionSCM.createClientManager(provider);
+				SVNURL up;
+				try {
+					up = upstreamLocation == null ? null : upstreamLocation.getSVNURL();
+				} catch (SVNException e1) {
+                    throw new IOException2("Failed to get the UpStream URL. Cannot rebase!\n", e1);
+				}
+                SVNClientManager cm = svnm.getCore();
+                cm.setEventHandler(printHandler);
+                SVNWCClient wc = cm.getWCClient();
+                SVNDiffClient dc = cm.getDiffClient();
+                
                 try {
-                    final PrintStream logger = listener.getLogger();
-                    final boolean[] foundConflict = new boolean[1];
-                    ISVNEventHandler printHandler = new SubversionEventHandlerImpl(logger,mr) {
-                        @Override
-                        public void handleEvent(SVNEvent event, double progress) throws SVNException {
-                            super.handleEvent(event, progress);
-							if (event.getContentsStatus() == SVNStatusType.CONFLICTED
-									|| event.getContentsStatus() == SVNStatusType.CONFLICTED_UNRESOLVED) {
-								foundConflict[0] = true;
-							}
-                        }
-                    };
-
-                    SvnClientManager svnm = SubversionSCM.createClientManager(provider);
-
-					SVNURL up = upstreamLocation == null ? null : upstreamLocation.getSVNURL();
-                    SVNClientManager cm = svnm.getCore();
-                    cm.setEventHandler(printHandler);
-
-                    SVNWCClient wc = cm.getWCClient();
-                    SVNDiffClient dc = cm.getDiffClient();
-
                     logger.printf("Updating workspace to the latest revision\n");
                     long wsr = cm.getUpdateClient().doUpdate(mr, HEAD, INFINITY, false, false);
 //                    logger.printf("  Updated to rev.%d\n",wsr);  // reported by printHandler
+                    logger.printf("Reverting workspace to the latest revision to make sure we have a clean WC \n");
+					wc.doRevert(new File[]{mr},INFINITY, null);
 
                     SVNRevision mergeRev = upstreamRev >= 0 ? SVNRevision.create(upstreamRev) : cm.getWCClient().doInfo(up,HEAD,HEAD).getCommittedRevision();
 
@@ -204,7 +209,7 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
                     SVNRevisionRange r = new SVNRevisionRange(SVNRevision.create(0),mergeRev);
                     dc.doMerge(up, mergeRev, Arrays.asList(r), mr, INFINITY, true, false, false, false);
                     if(foundConflict[0]) {
-                        logger.println("Found conflict. Reverting this failed merge");
+                        logger.println("Found conflict. Reverting this failed merge\n");
                         wc.doRevert(new File[]{mr},INFINITY, null);
                         return -1L;
                     } else {
@@ -217,23 +222,27 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
 											+ mergeRev, null, null, false,
 									false, INFINITY);
 							if (ci.getNewRevision() < 0) {
-								logger.println("  No changes since the last rebase. This rebase was a no-op.");
+								logger.println("  No changes since the last rebase. This rebase was a no-op.\n");
 								return 0L;
 							} else {
 								logger.println("  committed revision "
-										+ ci.getNewRevision());
+										+ ci.getNewRevision()+"\n");
 								return ci.getNewRevision();
 							}
 						} catch (SVNException e) {
-							logger.println("Failed to commit!");
-							logger.println(e.getLocalizedMessage());
-							logger.println("Reverting this failed merge..");
+							logger.println("Failed to commit! Reverting this failed merge\n");
 							wc.doRevert(new File[] { mr }, INFINITY, null);
 							return -1L;
 						}
                     }
                 } catch (SVNException e) {
-                    throw new IOException2("Failed to merge", e);
+                    logger.println("Major error encountered. Reverting this failed merge\n");
+                    try {
+						wc.doRevert(new File[]{mr},INFINITY, null);
+					} catch (SVNException e1) {
+	                    throw new IOException2("Failed to merge. WC has NOT been reverted.", e);
+					}
+                    throw new IOException2("Failed to merge. WC has been reverted.", e);
                 }
             }
         });
