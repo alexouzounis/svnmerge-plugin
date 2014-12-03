@@ -112,12 +112,6 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
             }
         }
         
-        // make sure the project is not building currently
-       if( getProject().isBuilding() ) {
-           listener.getLogger().println("Project is already building and cannot use workspace. Please try later.");
-           return -1;
-       }
-        
         long integratedRevision = getProperty().rebase(listener, rev);
 //        if(integratedRevision>0) {
 //            // record this integration as a fingerprint.
