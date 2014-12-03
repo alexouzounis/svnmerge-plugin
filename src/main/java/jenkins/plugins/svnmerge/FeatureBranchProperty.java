@@ -237,7 +237,7 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
                     }
                 } catch (SVNException e) {
                     logger.println("Major error encountered. Reverting this failed merge\n");
-                    try {
+                    try {			
 						wc.doRevert(new File[]{mr},INFINITY, null);
 					} catch (SVNException e1) {
 	                    throw new IOException2("Failed to merge. WC has NOT been reverted.", e);
@@ -297,29 +297,41 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
         final ISVNAuthenticationProvider provider = svn.createAuthenticationProvider(getUpstreamProject(), svn.getLocations()[0]);
 
         final ModuleLocation upstreamLocation = getUpstreamSubversionLocation();
-        
+        final PrintStream logger = listener.getLogger();
+
         return owner.getModuleRoot().act(new FileCallable<IntegrationResult>() {
             public IntegrationResult invoke(File mr, VirtualChannel virtualChannel) throws IOException {
+            	
+				final boolean[] foundConflict = new boolean[1];
+				ISVNEventHandler printHandler = new SubversionEventHandlerImpl(
+						logger, mr) {
+					@Override
+					public void handleEvent(SVNEvent event, double progress)
+							throws SVNException {
+						super.handleEvent(event, progress);
+						if (event.getContentsStatus() == SVNStatusType.CONFLICTED)
+							foundConflict[0] = true;
+					}
+				};
+
+				SvnClientManager svnm = SubversionSCM
+						.createClientManager(provider);
+				SVNURL up;
+				try {
+					up = upstreamLocation == null ? null : upstreamLocation
+							.getSVNURL();
+				} catch (SVNException e1) {
+					throw new IOException2(
+							"Failed to get the UpStream URL. Cannot rebase!\n",
+							e1);
+				}
+				SVNClientManager cm = svnm.getCore();
+				cm.setEventHandler(printHandler);
+				SVNWCClient wc = cm.getWCClient();
+				SVNDiffClient dc = cm.getDiffClient();
+            	
                 try {
-                    final PrintStream logger = listener.getLogger();
-                    final boolean[] foundConflict = new boolean[1];
-                    ISVNEventHandler printHandler = new SubversionEventHandlerImpl(logger,mr) {
-                        @Override
-                        public void handleEvent(SVNEvent event, double progress) throws SVNException {
-                            super.handleEvent(event, progress);
-                            if(event.getContentsStatus()== SVNStatusType.CONFLICTED)
-                                foundConflict[0] = true;
-                        }
-                    };
-
-                    SvnClientManager svnm = SubversionSCM.createClientManager(provider);
-
-					SVNURL up = upstreamLocation == null ? null : upstreamLocation.getSVNURL();
-                    SVNClientManager cm = svnm.getCore();
-                    cm.setEventHandler(printHandler);
-
                     // capture the working directory state before the switch
-                    SVNWCClient wc = cm.getWCClient();
                     SVNInfo wsState = wc.doInfo(mr, null);
                     SVNURL mergeUrl = branchURL != null ? SVNURL.parseURIDecoded(branchURL) : wsState.getURL();
                     SVNRevision mergeRev = branchRev >= 0 ? SVNRevision.create(branchRev) : wsState.getRevision();
@@ -351,7 +363,6 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
                     uc.doSwitch(mr, up, HEAD, HEAD, INFINITY, false, false);
 
                     logger.printf("Merging %s (rev.%s) to the upstream\n",mergeUrl,mergeRev);
-                    SVNDiffClient dc = cm.getDiffClient();
                     dc.doMergeReIntegrate(
                             mergeUrl,
                             mergeRev, mr, false);
@@ -383,23 +394,6 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
                         cm.getUpdateClient().doUpdate(mr, HEAD, INFINITY, false, false);
                         SVNCommitClient cc = cm.getCommitClient();
 
-                        if (false) {
-                            // taking Jack Repennings advise not to do this.
-
-                            // if the trunk merge produces a commit M, then we want to do "svn merge --record-only -c M <UpstreamURL>"
-                            // to convince Subversion not to try to merge rev.M again when re-integrating from the trunk in the future,
-                            // equivalent of single commit
-                            SVNRevisionRange r = new SVNRevisionRange(SVNRevision.create(trunkCommit-1),
-                                                                      SVNRevision.create(trunkCommit));
-                            String msg = "Block the merge commit rev." + trunkCommit + " from getting merged back into our branch";
-                            logger.println(msg);
-                            dc.doMerge(up,HEAD,Arrays.asList(r), mr, INFINITY, true/*opposite of --ignore-ancestory in CLI*/, false, false, true);
-
-                            SVNCommitInfo bci = cc.doCommit(new File[]{mr}, false, msg, null, null, false, false, INFINITY);
-                            logger.println("  committed revision "+bci.getNewRevision());
-                            cm.getUpdateClient().doUpdate(mr, HEAD, INFINITY, false, false);
-                        }
-
                         // this is the black magic part, but my experiments reveal that we need to run trunk->branch merge --reintegrate
                         // or else future rebase fails
                         logger.printf("Merging change from the upstream %s at rev.%s\n",up,trunkCommit);
@@ -418,8 +412,13 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
                     // -1 is returned if there was no commit, so normalize that to 0
                     return new IntegrationResult(Math.max(0,trunkCommit),mergeRev);
                 } catch (SVNException e) {
-                    throw new IOException2("Failed to merge", e);
-                }
+                	 logger.println("Major error encountered. Reverting the working copy\n");
+                     try {			
+ 						wc.doRevert(new File[]{mr},INFINITY, null);
+ 					} catch (SVNException e1) {
+ 	                    throw new IOException2("Failed to merge. WC has NOT been reverted.", e);
+ 					}
+                     throw new IOException2("Failed to merge. WC has been reverted.", e);                }
             }
         });
     }

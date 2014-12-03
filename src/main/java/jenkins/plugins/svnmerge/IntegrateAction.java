@@ -177,6 +177,14 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
      *      We are taking this revision and merge it into the upstream.
      */
     public long perform(TaskListener listener, SvnInfo src) throws IOException, InterruptedException {
+    	
+        // make sure the project is not building currently
+       if( getProject().isBuilding() ) {
+           listener.getLogger().println("Project is already building and cannot use workspace. Please try later.");
+           return -1;
+       }
+
+    	
         String commitMessage = getCommitMessage();
 
         // if this is -1, it doesn't capture
