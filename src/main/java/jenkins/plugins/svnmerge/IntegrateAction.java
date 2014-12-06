@@ -176,7 +176,7 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
      * @param src
      *      We are taking this revision and merge it into the upstream.
      */
-    public long perform(TaskListener listener, SvnInfo src) throws IOException, InterruptedException {
+    public long perform(TaskListener listener, SvnInfo src) throws IOException, InterruptedException {    	
         String commitMessage = getCommitMessage();
 
         // if this is -1, it doesn't capture

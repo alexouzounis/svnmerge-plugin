@@ -111,7 +111,7 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
                 rev = sv.revision;
             }
         }
-
+        
         long integratedRevision = getProperty().rebase(listener, rev);
 //        if(integratedRevision>0) {
 //            // record this integration as a fingerprint.
