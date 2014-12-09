@@ -33,8 +33,6 @@ public class RebaseSetting {
     }
 
     public RebaseSetting(Permalink p,String comment, String issues) {
-        this(p.getId());
-        this.comment=comment;
-        this.issues=issues;
+        this(p.getId(),comment,issues);
     }
 }
