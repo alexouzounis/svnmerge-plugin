@@ -17,7 +17,7 @@ public class RebaseSetting {
      * If this value is non-null, it takes precedence over {@link #revision}
      */
     public final String permalink;
-
+    
     public RebaseSetting(long revision, String comment, String issues) {
         this.revision = revision;
         this.permalink = null;

@@ -44,7 +44,7 @@ public class RebaseBuilder extends Builder {
         }
 
     	RebaseAction rebaseAction = new  RebaseAction(project);
-    	long result = rebaseAction.perform(listener,new RebaseSetting(permalink));
+    	long result = rebaseAction.perform(listener,new RebaseSetting(permalink,"Auto-Rebased from RebaseBuilder",""));
         return !stopBuildIfMergeFails || result >= 0;
     }
 

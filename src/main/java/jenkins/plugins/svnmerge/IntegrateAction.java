@@ -283,7 +283,7 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
 	// used to find integration commits. commit messages start with PREFIX, contains SUFFIX, followed by paths
     static final String COMMIT_MESSAGE_PREFIX = "INTEGRATE:  ";
     static final String COMMIT_MESSAGE_SUFFIX = " (from Jenkins [svnmerge-plugin])";
-    private static final String COMMIT_MESSAGE = COMMIT_MESSAGE_PREFIX + " Integrated build %s from %s \n User Comment: %s \n User Issues: %s \n"+COMMIT_MESSAGE_SUFFIX;
+    private static final String COMMIT_MESSAGE = COMMIT_MESSAGE_PREFIX + " Integrated build %s from %s \n Comment: %s \n Issues: %s \n"+COMMIT_MESSAGE_SUFFIX;
 
     private static final Logger LOGGER = Logger.getLogger(IntegrateAction.class.getName());
 

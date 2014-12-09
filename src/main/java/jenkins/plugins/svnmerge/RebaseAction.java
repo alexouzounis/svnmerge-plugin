@@ -165,5 +165,5 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
     
     static final String COMMIT_MESSAGE_PREFIX = "REBASE:";
     static final String COMMIT_MESSAGE_SUFFIX = " (from Jenkins [svnmerge-plugin])";
-    private static final String COMMIT_MESSAGE = COMMIT_MESSAGE_PREFIX + " Rebasing from %s \n User Comment: %s \n User Issues: %s \n"+COMMIT_MESSAGE_SUFFIX;
+    private static final String COMMIT_MESSAGE = COMMIT_MESSAGE_PREFIX + " Rebasing from %s \n Comment: %s \n Issues: %s \n"+COMMIT_MESSAGE_SUFFIX;
 }
