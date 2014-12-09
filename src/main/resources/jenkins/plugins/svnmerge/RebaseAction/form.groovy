@@ -33,7 +33,12 @@ l.layout(norefresh:true, title:_("Rebase changes from upstream")) {
                     }
                 }
             }
-
+			f.entry(title:_("Commit Message Comment (Optional)"),description:_("description",rootURL)) {
+			    f.textarea(name: "comment", value: "", class: "fixed-width")
+			}
+			f.entry(title:_("Issue Number(s) (Optional)"),description:_("description",rootURL)) {
+			    f.textarea(name: "issues", value: "", class: "fixed-width")
+			}
             f.submit(value:_("Rebase"))
         }
 

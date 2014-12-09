@@ -16,8 +16,6 @@ import hudson.scm.SubversionSCM.ModuleLocation;
 import hudson.scm.SubversionSCM.SvnInfo;
 import hudson.security.ACL;
 import hudson.security.Permission;
-import hudson.security.PermissionGroup;
-import hudson.security.PermissionScope;
 import hudson.util.LogTaskListener;
 import jenkins.model.Jenkins;
 import jenkins.plugins.svnmerge.FeatureBranchProperty.IntegrationResult;
@@ -48,7 +46,9 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
      }
 
 	public final AbstractBuild<?,?> build;
-
+	private String commitMessage;
+	
+	
     /**
      * If the integration is successful, set to the revision of the commit of the merge.
      * If the integration is successful but there was nothing to merge, 0.
@@ -122,7 +122,7 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
 
     @Override
     protected IntegrateSetting createParams(StaplerRequest req) throws IOException {
-        return new IntegrateSetting();
+        return new IntegrateSetting(req.getParameter("comment"),req.getParameter("issues"));
     }
 
     /**
@@ -168,19 +168,11 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
      * <p>
      * This requires that the calling thread owns the workspace.
      */
-    /*package*/ long perform(TaskListener listener, IntegrateSetting _) throws IOException, InterruptedException {
-        return perform(listener, getSvnInfo());
-    }
-
-    /**
-     * @param src
-     *      We are taking this revision and merge it into the upstream.
-     */
-    public long perform(TaskListener listener, SvnInfo src) throws IOException, InterruptedException {    	
-        String commitMessage = getCommitMessage();
+    /*package*/ long perform(TaskListener listener, IntegrateSetting param) throws IOException, InterruptedException {
+        commitMessage = getCommitMessage(param.comment,param.issues);
 
         // if this is -1, it doesn't capture
-        IntegrationResult r = getProperty().integrate(listener, src.url, -1, commitMessage);
+        IntegrationResult r = getProperty().integrate(listener, getSvnInfo().url, -1, commitMessage);
         integratedRevision = r.mergeCommit;
         integrationSource = r.integrationSource;
         if(integratedRevision>0) {
@@ -188,7 +180,7 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
             // this will allow us to find where this change is integrated.
             Jenkins.getInstance().getFingerprintMap().getOrCreate(
                     build, IntegrateAction.class.getName(),
-                    getFingerprintKey());
+                    getFingerprintKey(commitMessage));
         }
         build.save();
         return integratedRevision;
@@ -205,7 +197,7 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
      *      if not integrated yet or this information is lost.
      */
     public int getUpstreamBuildNumber() throws IOException {
-        Fingerprint f = Jenkins.getInstance().getFingerprintMap().get(getFingerprintKey());
+        Fingerprint f = Jenkins.getInstance().getFingerprintMap().get(getFingerprintKey(commitMessage));
         if(f==null)         return -1;
         FeatureBranchProperty p = getProperty();
         RangeSet rs = new RangeSet(); // empty range set
@@ -225,12 +217,8 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
     /**
      * This is the md5 hash to keep track of where this change is integrated.
      */
-    public String getFingerprintKey() {
-        return Util.getDigestOf(getCommitMessage()+"#"+integratedRevision);
-    }
-
-    private String getCommitMessage() {
-        return COMMIT_MESSAGE_PREFIX + build.getFullDisplayName()+ COMMIT_MESSAGE_SUFFIX;
+    public String getFingerprintKey(String commitMessage) {
+        return Util.getDigestOf(commitMessage+"#"+integratedRevision);
     }
 
     /**
@@ -288,9 +276,15 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
         return null;
     }
 
-    // used to find integration commits. commit messages start with PREFIX, contains SUFFIX, followed by paths
-    static final String COMMIT_MESSAGE_PREFIX = "Integrated ";
-    static final String COMMIT_MESSAGE_SUFFIX = " (from Jenkins)";
+    private String getCommitMessage(String cmt, String iss) {
+    	return String.format(COMMIT_MESSAGE, build.getFullDisplayName(),"%s",cmt==null?"":cmt,iss==null?"":iss);
+	}
+
+	// used to find integration commits. commit messages start with PREFIX, contains SUFFIX, followed by paths
+    static final String COMMIT_MESSAGE_PREFIX = "INTEGRATE:  ";
+    static final String COMMIT_MESSAGE_SUFFIX = " (from Jenkins [svnmerge-plugin])";
+    private static final String COMMIT_MESSAGE = COMMIT_MESSAGE_PREFIX + " Integrated build %s from %s \n User Comment: %s \n User Issues: %s \n"+COMMIT_MESSAGE_SUFFIX;
+
     private static final Logger LOGGER = Logger.getLogger(IntegrateAction.class.getName());
 
 }

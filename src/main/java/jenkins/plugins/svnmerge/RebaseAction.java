@@ -10,8 +10,6 @@ import hudson.scm.SubversionSCM.SvnInfo;
 import hudson.scm.SubversionTagAction;
 import hudson.security.ACL;
 import hudson.security.Permission;
-import hudson.security.PermissionGroup;
-import hudson.security.PermissionScope;
 import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.StaplerRequest;
@@ -34,7 +32,7 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
      }
 	
     public final AbstractProject<?,?> project;
-
+    
     public RebaseAction(AbstractProject<?,?> project) {
         this.project = project;
     }
@@ -75,8 +73,10 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
 
     protected RebaseSetting createParams(StaplerRequest req) {
         String id = req.getParameter("permalink");
-        if (id!=null)   return new RebaseSetting(id);
-        else            return new RebaseSetting(-1);
+        String comment = req.getParameter("comment");
+        String issues = req.getParameter("issues");
+        if (id!=null)   return new RebaseSetting(id,comment,issues);
+        else            return new RebaseSetting(-1,comment,issues);
     }
 
     @Override
@@ -91,6 +91,7 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
      */
     /*package*/ long perform(TaskListener listener, RebaseSetting param) throws IOException, InterruptedException {
         long rev = param.revision;
+        String commitMessage = getCommitMessage(param.comment,param.issues);
 
         if (param.permalink!=null) {
             AbstractProject<?, ?> up = getProperty().getUpstreamProject();
@@ -112,7 +113,7 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
             }
         }
         
-        long integratedRevision = getProperty().rebase(listener, rev);
+        long integratedRevision = getProperty().rebase(listener, rev,commitMessage);
 //        if(integratedRevision>0) {
 //            // record this integration as a fingerprint.
 //            // this will allow us to find where this change is integrated.
@@ -158,5 +159,11 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
         }
     }
 
-    public static final String COMMIT_MESSAGE_PREFIX = "[REBASE] ";
+    public static String getCommitMessage(String cmt,String iss){
+    	return String.format(COMMIT_MESSAGE, "%s",cmt==null?"":cmt,iss==null?"":iss);
+    }
+    
+    static final String COMMIT_MESSAGE_PREFIX = "REBASE:";
+    static final String COMMIT_MESSAGE_SUFFIX = " (from Jenkins [svnmerge-plugin])";
+    private static final String COMMIT_MESSAGE = COMMIT_MESSAGE_PREFIX + " Rebasing from %s \n User Comment: %s \n User Issues: %s \n"+COMMIT_MESSAGE_SUFFIX;
 }

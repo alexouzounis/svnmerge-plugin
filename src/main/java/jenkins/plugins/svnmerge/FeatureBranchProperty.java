@@ -152,12 +152,14 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
      * @param upstreamRev
      *      Revision of the upstream to rebase from.
      *      If -1, use the latest.
+     * @param commitMessage
+     *      the commit message (%s for the url being merged)
      * @return
      *      the new revision number if the rebase was successful.
      *      -1 if it failed and the failure was handled gracefully
      *      (typically this means a merge conflict.)
      */
-    public long rebase(final TaskListener listener, final long upstreamRev) throws IOException, InterruptedException {
+    public long rebase(final TaskListener listener, final long upstreamRev, final String commitMessage) throws IOException, InterruptedException {
         final SubversionSCM svn = (SubversionSCM) getOwner().getScm();
         final ISVNAuthenticationProvider provider = svn.createAuthenticationProvider(getOwner(), svn.getLocations()[0]);
 
@@ -217,10 +219,8 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
 							logger.println("Committing changes");
 							SVNCommitClient cc = cm.getCommitClient();
 							SVNCommitInfo ci = cc.doCommit(new File[] { mr },
-									false, RebaseAction.COMMIT_MESSAGE_PREFIX
-											+ "Rebasing from " + up + "@"
-											+ mergeRev, null, null, false,
-									false, INFINITY);
+									false,String.format(commitMessage, up + "@"+ mergeRev), null, null, false,
+									false, INFINITY); 
 							if (ci.getNewRevision() < 0) {
 								logger.println("  No changes since the last rebase. This rebase was a no-op.\n");
 								return 0L;
@@ -342,8 +342,8 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
                         cm.getLogClient().doLog(new File[]{mr},mergeRev,SVNRevision.create(lastIntegrationSourceRevision),mergeRev,true,false,-1,new ISVNLogEntryHandler() {
                             public void handleLogEntry(SVNLogEntry e) throws SVNException {
                                 if (!changesFound.booleanValue()) {
-                                	String message = e.getMessage();
-                                	
+                                	String message = e.getMessage(); 
+                                	 
                                     if (!message.startsWith(RebaseAction.COMMIT_MESSAGE_PREFIX)
                                     		&& !message.startsWith(IntegrateAction.COMMIT_MESSAGE_PREFIX)) {
                                     	changesFound.setValue(true);
@@ -373,7 +373,7 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
                     } else {
                         logger.println("Committing changes to the upstream");
                         SVNCommitClient cc = cm.getCommitClient();
-                        ci = cc.doCommit(new File[]{mr}, false, commitMessage+"\n"+mergeUrl+"@"+mergeRev, null, null, false, false, INFINITY);
+                        ci = cc.doCommit(new File[]{mr}, false, String.format(commitMessage, mergeUrl+"@"+mergeRev), null, null, false, false, INFINITY);
                         if(ci.getNewRevision()<0)
                             logger.println("  No changes since the last integration");
                         else

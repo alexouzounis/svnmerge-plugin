@@ -3,6 +3,12 @@ package jenkins.plugins.svnmerge;
 /**
  * @author Kohsuke Kawaguchi
  */
-public class IntegrateSetting {
-    // currently no parameters are defined
+public class IntegrateSetting {	
+	String comment;
+	String issues;
+	
+	public IntegrateSetting(String comment, String issues) {
+        this.comment=comment;
+        this.issues=issues;
+    }
 }
