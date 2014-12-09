@@ -292,15 +292,15 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
      */
     public IntegrationResult integrate(final TaskListener listener, final String branchURL, final long branchRev, final String commitMessage) throws IOException, InterruptedException {
         final Long lastIntegrationSourceRevision = getlastIntegrationSourceRevision();
+        final SubversionSCM svn = (SubversionSCM) getOwner().getScm();
+        final ISVNAuthenticationProvider provider = svn.createAuthenticationProvider(getOwner(), svn.getLocations()[0]);
 
+        final ModuleLocation upstreamLocation = getUpstreamSubversionLocation();
+       
       
         return owner.getModuleRoot().act(new FileCallable<IntegrationResult>() {
             public IntegrationResult invoke(File mr, VirtualChannel virtualChannel) throws IOException {
                 final PrintStream logger = listener.getLogger();
-                final SubversionSCM svn = (SubversionSCM) getUpstreamProject().getScm();
-                final ISVNAuthenticationProvider provider = svn.createAuthenticationProvider(getUpstreamProject(), svn.getLocations()[0]);
-
-                final ModuleLocation upstreamLocation = getUpstreamSubversionLocation();
 
 				final boolean[] foundConflict = new boolean[1];
 				ISVNEventHandler printHandler = new SubversionEventHandlerImpl(
