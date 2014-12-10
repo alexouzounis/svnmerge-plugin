@@ -21,7 +21,7 @@ l.layout(norefresh:"true", title:"#${my.build.number} Integration") {
 			    f.textarea(name: "comment", value: "", class: "fixed-width")
 			}
 			f.entry(title:_("Issue Number(s) (Optional)")) {
-			    f.textarea(name: "issues", value: "", class: "fixed-width")
+			    f.textbox(name: "issues", value: "", class: "fixed-width")
 			}
             
             f.submit(value:_("Integrate this build to upstream"))
