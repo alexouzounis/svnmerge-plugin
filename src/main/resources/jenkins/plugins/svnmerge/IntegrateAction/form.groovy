@@ -18,7 +18,7 @@ l.layout(norefresh:"true", title:"#${my.build.number} Integration") {
 
         form(action:"perform", method:"post", name:"integrate") {
 			f.entry(title:_("Commit Message Comment (Optional)")) {
-			    f.textarea(name: "comment", value: "", class: "fixed-width")
+			    f.textbox(name: "comment", value: "", class: "fixed-width")
 			}
 			f.entry(title:_("Issue Number(s) (Optional)")) {
 			    f.textbox(name: "issues", value: "", class: "fixed-width")
