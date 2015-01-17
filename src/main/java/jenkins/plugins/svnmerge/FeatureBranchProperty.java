@@ -202,8 +202,6 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
                     logger.printf("Updating workspace to the latest revision\n");
                     long wsr = cm.getUpdateClient().doUpdate(mr, HEAD, INFINITY, false, false);
 //                    logger.printf("  Updated to rev.%d\n",wsr);  // reported by printHandler
-                    logger.printf("Reverting workspace to the latest revision to make sure we have a clean WC \n");
-					wc.doRevert(new File[]{mr},INFINITY, null);
 
                     SVNRevision mergeRev = upstreamRev >= 0 ? SVNRevision.create(upstreamRev) : cm.getWCClient().doInfo(up,HEAD,HEAD).getCommittedRevision();
 
@@ -238,7 +236,9 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
 						}
                     }
                 } catch (SVNException e) {
-                    logger.println("Major error encountered. Reverting this failed merge\n");
+					logger.println("Major error encountered!");
+					logger.println(e.getLocalizedMessage());
+					logger.println("Reverting this failed merge.");
                     try {			
 						wc.doRevert(new File[]{mr},INFINITY, null);
 					} catch (SVNException e1) {
@@ -414,8 +414,10 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
                     // -1 is returned if there was no commit, so normalize that to 0
                     return new IntegrationResult(Math.max(0,trunkCommit),mergeRev);
                 } catch (SVNException e) {
-                	 logger.println("Major error encountered. Reverting the working copy\n");
-                     try {			
+                	logger.println("Major error encountered!");
+					logger.println(e.getLocalizedMessage());
+					logger.println("Reverting this failed merge.");
+					try {			
  						wc.doRevert(new File[]{mr},INFINITY, null);
  					} catch (SVNException e1) {
  	                    throw new IOException2("Failed to merge. WC has NOT been reverted.", e);
