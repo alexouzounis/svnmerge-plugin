@@ -60,7 +60,7 @@
     <dependency>
 	  <groupId>hudson.plugins</groupId>
 	  <artifactId>project-inheritance</artifactId>
-	  <version>1.5.4.4</version>
+	  <version>LATEST</version>
 	  <optional>true</optional>
 	</dependency>
   </dependencies>
