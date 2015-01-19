@@ -88,7 +88,7 @@ public class IntegratableProjectAction extends AbstractModelObject implements Ac
     	SCM scm = project.getScm();
         if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
             if (project instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
-                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) project).getRawScm();
+                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) project).getScm(hudson.plugins.project_inheritance.projects.InheritanceProject.IMode.INHERIT_FORCED);
             }
         }
     	
@@ -133,7 +133,7 @@ public class IntegratableProjectAction extends AbstractModelObject implements Ac
         SCM scm = project.getScm();
         if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
             if (project instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
-                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) project).getRawScm();
+                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) project).getScm(hudson.plugins.project_inheritance.projects.InheritanceProject.IMode.INHERIT_FORCED);
             }
         }
         if (!(scm instanceof SubversionSCM)) {
@@ -232,7 +232,7 @@ public class IntegratableProjectAction extends AbstractModelObject implements Ac
     		SubversionSCM svnScm = (SubversionSCM)copy.getScm();
             if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
                 if (copy instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
-                    scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) copy).getRawScm();
+                    scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) copy).getScm(hudson.plugins.project_inheritance.projects.InheritanceProject.IMode.INHERIT_FORCED);
                 }
             }
     		copy.setScm(

@@ -102,7 +102,7 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
         SCM scm=p.getScm();
         if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
             if (p instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
-                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) p).getRawScm();
+                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) p).getScm(hudson.plugins.project_inheritance.projects.InheritanceProject.IMode.INHERIT_FORCED);
             }
         }
                 
@@ -171,7 +171,7 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
         SCM scm=getOwner().getScm();
         if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
             if (getOwner() instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
-                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) getOwner()).getRawScm();
+                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) getOwner()).getScm(hudson.plugins.project_inheritance.projects.InheritanceProject.IMode.INHERIT_FORCED);
             }
         }
 
@@ -313,7 +313,7 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
         SCM scm=getOwner().getScm();
         if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
             if (getOwner() instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
-                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) getOwner()).getRawScm();
+                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) getOwner()).getScm(hudson.plugins.project_inheritance.projects.InheritanceProject.IMode.INHERIT_FORCED);
             }
         }
         final SubversionSCM svn = (SubversionSCM) scm;
