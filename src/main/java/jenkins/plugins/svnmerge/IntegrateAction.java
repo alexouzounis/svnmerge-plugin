@@ -131,6 +131,11 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
      */
 	public SvnInfo getSvnInfo() {
 		SCM scm = getProject().getScm();
+        if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
+            if (getProject() instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
+                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) getProject()).getRawScm();
+            }
+        }
 		if (!(scm instanceof SubversionSCM)) {
 			return null;
 		} 

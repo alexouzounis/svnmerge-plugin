@@ -57,6 +57,12 @@
       <version>2.15</version>
       <optional>true</optional>
     </dependency>
+    <dependency>
+	  <groupId>hudson.plugins</groupId>
+	  <artifactId>project-inheritance</artifactId>
+	  <version>1.5.4.4</version>
+	  <optional>true</optional>
+	</dependency>
   </dependencies>
 
 </project>  

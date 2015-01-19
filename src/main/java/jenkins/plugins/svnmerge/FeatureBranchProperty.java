@@ -98,7 +98,14 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
     public ModuleLocation getUpstreamSubversionLocation() {
         AbstractProject<?,?> p = getUpstreamProject();
         if(p==null)     return null;
-        SCM scm = p.getScm();
+        
+        SCM scm=p.getScm();
+        if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
+            if (p instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
+                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) p).getRawScm();
+            }
+        }
+                
         if (scm instanceof SubversionSCM) {
             SubversionSCM svn = (SubversionSCM) scm;
             ModuleLocation ml = svn.getLocations()[0];
@@ -160,7 +167,16 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
      *      (typically this means a merge conflict.)
      */
     public long rebase(final TaskListener listener, final long upstreamRev, final String commitMessage) throws IOException, InterruptedException {
-        final SubversionSCM svn = (SubversionSCM) getOwner().getScm();
+        
+        SCM scm=getOwner().getScm();
+        if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
+            if (getOwner() instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
+                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) getOwner()).getRawScm();
+            }
+        }
+
+        final SubversionSCM svn = (SubversionSCM) scm;
+        
         final ISVNAuthenticationProvider provider = svn.createAuthenticationProvider(getOwner(), svn.getLocations()[0]);
 
         final ModuleLocation upstreamLocation = getUpstreamSubversionLocation();
@@ -294,7 +310,13 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
      */
     public IntegrationResult integrate(final TaskListener listener, final String branchURL, final long branchRev, final String commitMessage) throws IOException, InterruptedException {
         final Long lastIntegrationSourceRevision = getlastIntegrationSourceRevision();
-        final SubversionSCM svn = (SubversionSCM) getOwner().getScm();
+        SCM scm=getOwner().getScm();
+        if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
+            if (getOwner() instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
+                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) getOwner()).getRawScm();
+            }
+        }
+        final SubversionSCM svn = (SubversionSCM) scm;
         final ISVNAuthenticationProvider provider = svn.createAuthenticationProvider(getOwner(), svn.getLocations()[0]);
 
         final ModuleLocation upstreamLocation = getUpstreamSubversionLocation();

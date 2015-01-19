@@ -86,6 +86,12 @@ public class IntegratableProjectAction extends AbstractModelObject implements Ac
      */
     public RepositoryLayoutInfo getRepositoryLayout() {
     	SCM scm = project.getScm();
+        if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
+            if (project instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
+                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) project).getRawScm();
+            }
+        }
+    	
         if (!(scm instanceof SubversionSCM)) {
             return null;
         }
@@ -125,6 +131,11 @@ public class IntegratableProjectAction extends AbstractModelObject implements Ac
         }
         
         SCM scm = project.getScm();
+        if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
+            if (project instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
+                scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) project).getRawScm();
+            }
+        }
         if (!(scm instanceof SubversionSCM)) {
         	sendError("This project doesn't use Subversion as SCM");
         	return;
@@ -219,6 +230,11 @@ public class IntegratableProjectAction extends AbstractModelObject implements Ac
     		((AbstractProject)copy).addProperty(new FeatureBranchProperty(project.getName())); // pointless cast for working around javac bug as of JDK1.6.0_02
     		// update the SCM config to point to the branch
     		SubversionSCM svnScm = (SubversionSCM)copy.getScm();
+            if (Jenkins.getInstance().getPlugin("project-inheritance") != null) {
+                if (copy instanceof hudson.plugins.project_inheritance.projects.InheritanceProject) {
+                    scm=((hudson.plugins.project_inheritance.projects.InheritanceProject) copy).getRawScm();
+                }
+            }
     		copy.setScm(
     				new SubversionSCM(
     						Arrays.asList(firstLocation.withRemote(branchUrl)),
