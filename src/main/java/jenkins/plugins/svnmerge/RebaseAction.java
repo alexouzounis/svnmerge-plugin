@@ -6,6 +6,7 @@ import hudson.model.PermalinkProjectAction.Permalink;
 import hudson.model.Queue.Task;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.model.User;
 import hudson.scm.SubversionSCM.SvnInfo;
 import hudson.scm.SubversionTagAction;
 import hudson.security.ACL;
@@ -160,10 +161,14 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
     }
 
     public static String getCommitMessage(String cmt,String iss){
-    	return String.format(COMMIT_MESSAGE, "%s",cmt==null?"":cmt,iss==null?"":iss);
+    	String userFullName="Jenkins";
+    	if (User.current()!=null){
+    		userFullName = User.current().getFullName();
+    	}
+    	return String.format(COMMIT_MESSAGE, "%s",cmt==null?"":cmt,iss==null?"":iss,userFullName);
     }
     
     static final String COMMIT_MESSAGE_PREFIX = "REBASE:";
     static final String COMMIT_MESSAGE_SUFFIX = " (from Jenkins [svnmerge-plugin])";
-    private static final String COMMIT_MESSAGE = COMMIT_MESSAGE_PREFIX + " Rebasing from %s \n Comment: %s \n Issues: %s \n"+COMMIT_MESSAGE_SUFFIX;
+    private static final String COMMIT_MESSAGE = COMMIT_MESSAGE_PREFIX + " Rebasing from %s \n Comment: %s \n Issues: %s \n User: %s \n"+COMMIT_MESSAGE_SUFFIX;
 }

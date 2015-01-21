@@ -5,6 +5,7 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildBadgeAction;
 import hudson.model.Fingerprint;
+import hudson.model.User;
 import hudson.model.Fingerprint.RangeSet;
 import hudson.model.Queue.Task;
 import hudson.model.TaskListener;
@@ -274,13 +275,17 @@ public class IntegrateAction extends AbstractSvnmergeTaskAction<IntegrateSetting
     }
 
     private String getCommitMessage(String cmt, String iss) {
-    	return String.format(COMMIT_MESSAGE, build.getFullDisplayName(),"%s",cmt==null?"":cmt,iss==null?"":iss);
+    	String userFullName="Jenkins";
+    	if (User.current()!=null){
+    		userFullName = User.current().getFullName();
+    	}
+    	return String.format(COMMIT_MESSAGE, build.getFullDisplayName(),"%s",cmt==null?"":cmt,iss==null?"":iss,userFullName);
 	}
 
 	// used to find integration commits. commit messages start with PREFIX, contains SUFFIX, followed by paths
     static final String COMMIT_MESSAGE_PREFIX = "INTEGRATE:  ";
     static final String COMMIT_MESSAGE_SUFFIX = " (from Jenkins [svnmerge-plugin])";
-    private static final String COMMIT_MESSAGE = COMMIT_MESSAGE_PREFIX + " Integrated build %s from %s \n Comment: %s \n Issues: %s \n"+COMMIT_MESSAGE_SUFFIX;
+    private static final String COMMIT_MESSAGE = COMMIT_MESSAGE_PREFIX + " Integrated build %s from %s \n Comment: %s \n Issues: %s \n User: %s\n"+COMMIT_MESSAGE_SUFFIX;
 
     private static final Logger LOGGER = Logger.getLogger(IntegrateAction.class.getName());
 
