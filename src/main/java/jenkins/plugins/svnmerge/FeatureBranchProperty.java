@@ -355,11 +355,16 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
 				SVNDiffClient dc = cm.getDiffClient();
             	
                 try {
+                    logger.println("Reverting workspace, please stand by..");
+                	// do massive revert to make sure we have a clean state
+                    wc.doRevert(new File[]{mr},INFINITY, null);
+                    logger.println("Workspace reverted!");
+
                     // capture the working directory state before the switch
                     SVNInfo wsState = wc.doInfo(mr, null);
                     SVNURL mergeUrl = branchURL != null ? SVNURL.parseURIDecoded(branchURL) : wsState.getURL();
                     SVNRevision mergeRev = branchRev >= 0 ? SVNRevision.create(branchRev) : wsState.getRevision();
-
+                    
                     // do we have any meaningful changes in this branch worthy of integration?
                     if (lastIntegrationSourceRevision !=null) {
                     	final MutableBoolean changesFound = new MutableBoolean(false);
