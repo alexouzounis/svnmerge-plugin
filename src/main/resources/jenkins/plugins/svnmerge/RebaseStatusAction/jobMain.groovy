@@ -7,8 +7,8 @@ h2("Subversion Rebase Tracking")
 p(style:"margin-left:1em") {
     text(_("This project is a feature branch of "))
     t.jobLink(job:my.branchProperty.upstreamProject)
-    if(my.lastrebasedbuild!=null){
+    if(my.lastRebasedBuild!=null){
  	   	text(_("Last Rebase:  "))
-    	t.buildLink(jobName:my.branchProperty.upstream, job:my.branchProperty.upstreamProject, number:my.lastrebasedbuild.number)
+    	t.buildLink(jobName:my.branchProperty.upstream, job:my.branchProperty.upstreamProject, number:my.lastRebasedBuild.number)
 	}
 }

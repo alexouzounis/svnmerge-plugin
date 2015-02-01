@@ -30,9 +30,9 @@ l.layout(norefresh:"true", title:"#${my.build.number} Integration") {
 
         h2 (style:"margin-top:2em", _("Result of Last Integration"))
 
-		if (my.integratedrevision>0){
-			tex(_("Integration source   : ${my.integrationsource}"))
-			tex(_("Integrated revision  : ${my.integratedrevision}"))			
+		if (my.integratedRevision>0){
+			tex(_("Integration source   : ${my.integrationSource}"))
+			tex(_("Integrated revision  : ${my.integratedRevision}"))			
 		}
 
     }

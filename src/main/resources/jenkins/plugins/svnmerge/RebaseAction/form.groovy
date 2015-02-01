@@ -44,9 +44,9 @@ l.layout(norefresh:true, title:_("Rebase changes from upstream")) {
 
         h2 (style:"margin-top:2em", _("Result of Last Rebase"))
 
-		if (my.rebaserevision>0){
-			tex(_("Rebase source    : ${my.rebasesource}"))
-			tex(_("Rebase revision  : ${my.rebaseevision}"))			
+		if (my.rebaseRevision>0){
+			tex(_("Rebase source    : ${my.rebaseSource}"))
+			tex(_("Rebase revision  : ${my.rebaseRevision}"))			
 		}
  
     }
