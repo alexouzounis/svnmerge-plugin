@@ -4,6 +4,7 @@ import hudson.AbortException;
 import hudson.model.AbstractProject;
 import hudson.model.PermalinkProjectAction.Permalink;
 import hudson.model.Queue.Task;
+import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.User;
@@ -31,15 +32,39 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
      protected Permission getPermission() {
          return REBASE_PERMISSION;
      }
-	
+ 	public final AbstractBuild<?,?> build;
+
     public final AbstractProject<?,?> project;
-    public long integratedRevision;    
-    public long revisionToIntegrateFrom;    
+    
+	
+    /**
+     * If the rebase is successful, set to the revision of the commit of the merge.
+     * If the rebase is successful but there was nothing to merge, 0.
+     * If it failed, -1. If a rebase was never attempted, null.
+     */
+    private Long rebaseRevision;
+
+    /**
+     * Commit in upsream that was merged into this branch
+     */
+    private Long rebaseSource;
+    
+    
     
     public RebaseAction(AbstractProject<?,?> project) {
         this.project = project;
+        this.build=null;
     }
-
+    
+    public RebaseAction(AbstractProject<?,?> project,AbstractBuild<?,?> build) {
+        this.project = project;
+        this.build=build;
+    }
+    
+    public boolean isRebased() {
+        return rebaseRevision!=null && rebaseSource!=null && rebaseRevision>0 && rebaseSource>0;
+    }
+    
     public String getIconFileName() {
         if(!isApplicable()) return null; // missing configuration
         return "/plugin/svnmerge/24x24/sync.gif";
@@ -115,9 +140,9 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
                 rev = sv.revision;
             }
         }
-        revisionToIntegrateFrom=rev;
-        integratedRevision = getProperty().rebase(listener, rev,commitMessage);
-        return integratedRevision;
+        rebaseSource=rev;
+        rebaseRevision = getProperty().rebase(listener, rev,commitMessage);
+        return rebaseRevision;
     }
 
     /**

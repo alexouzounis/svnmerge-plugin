@@ -74,8 +74,8 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
      * Upstream job name.
      */
     private String upstream;
-    private transient RebaseAction rebaseAction;
-
+    
+    
     @DataBoundConstructor
     public FeatureBranchProperty(String upstream) {
         if (upstream == null) {
@@ -131,9 +131,10 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
 
     @Override
     public List<Action> getJobActions(AbstractProject<?,?> project) {
-        if (rebaseAction==null)
-            rebaseAction = new RebaseAction(project);
-        return Arrays.asList(new IntegrationStatusAction(this), rebaseAction);
+        List<Action> actions = new ArrayList<Action>(2);
+        actions.add(new IntegrationStatusAction(this));
+        actions.add(new RebaseStatusAction(this));
+        return actions;
     }
 
     /**
@@ -437,10 +438,9 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
                         SVNCommitInfo bci = cc.doCommit(new File[]{mr}, false, msg, null, null, false, false, INFINITY);
                         logger.println("  committed revision "+bci.getNewRevision());
                     }
-
                     // -1 is returned if there was no commit, so normalize that to 0
                     return new IntegrationResult(Math.max(0,trunkCommit),mergeRev);
-                } catch (SVNException e) {
+                } catch (SVNException e) { 
                 	logger.println("Major error encountered!");
 					logger.println(e.getLocalizedMessage());
 					logger.println("Reverting this failed merge.");
@@ -454,9 +454,15 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
         });
     }
 
-    private Long getlastIntegrationSourceRevision() {
+    public Long getlastIntegrationSourceRevision() {
         IntegrateAction ia = IntegrationStatusAction.getLastIntegrateAction(owner);
         if (ia!=null)   return ia.getIntegrationSource();
+        return null;
+    }
+    
+    public Long getlastRebaseSourceRevision() {
+        RebaseAction ia = RebaseStatusAction.getLastRebaseAction(owner);
+        if (ia!=null)   return ia.lastRebaseRev;
         return null;
     }
 
