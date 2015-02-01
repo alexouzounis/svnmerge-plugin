@@ -42,8 +42,14 @@ l.layout(norefresh:true, title:_("Rebase changes from upstream")) {
             f.submit(value:_("Rebase"))
         }
 
+        h2 (style:"margin-top:2em", _("Result of Last Rebase"))
+
+		if (my.integratedRevision>0){
+			tex(_("UpSteam revision rebased from: ${my.revisionToIntegrateFrom}"))
+			tex(_("Integrated revision          : ${my.integratedRevision}"))			
+		}
+        
         if (my.logFile.exists()) {
-            h2 (style:"margin-top:2em", _("Result of Last Rebase"))
             pre {
                 st.copyStream(reader:my.log.readAll())
             }

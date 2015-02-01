@@ -33,6 +33,8 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
      }
 	
     public final AbstractProject<?,?> project;
+    public long integratedRevision;    
+    public long revisionToIntegrateFrom;    
     
     public RebaseAction(AbstractProject<?,?> project) {
         this.project = project;
@@ -113,15 +115,8 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
                 rev = sv.revision;
             }
         }
-        
-        long integratedRevision = getProperty().rebase(listener, rev,commitMessage);
-//        if(integratedRevision>0) {
-//            // record this integration as a fingerprint.
-//            // this will allow us to find where this change is integrated.
-//            Jenkins.getInstance().getFingerprintMap().getOrCreate(
-//                    build, IntegrateAction.class.getName(),
-//                    getFingerprintKey());
-//        }
+        revisionToIntegrateFrom=rev;
+        integratedRevision = getProperty().rebase(listener, rev,commitMessage);
         return integratedRevision;
     }
 
