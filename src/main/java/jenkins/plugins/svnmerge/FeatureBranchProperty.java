@@ -461,8 +461,8 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
     }
     
     public Long getlastRebaseSourceRevision() {
-        RebaseAction ia = RebaseStatusAction.getLastRebaseAction(owner);
-        if (ia!=null)   return ia.lastRebaseRev;
+        RebaseAction ra = RebaseStatusAction.getLastRebaseAction(owner);
+        if (ra!=null)   return ra.getRebaseRevision();
         return null;
     }
 

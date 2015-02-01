@@ -162,6 +162,14 @@ public class RebaseAction extends AbstractSvnmergeTaskAction<RebaseSetting> {
         return "form.jelly";
     }
 
+    public Long getRebaseRevision() {
+        return rebaseRevision;
+    }
+
+    public Long getRebaseSource() {
+        return rebaseSource;
+    }
+
 
     /**
      * {@link Task} that performs the integration.
