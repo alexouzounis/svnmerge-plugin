@@ -28,7 +28,7 @@ l.layout(norefresh:true, title:_("title",my.project.displayName)) {
             p {
                 text("Last Rebase was from ")
                 a(href: Functions.getRelativeLinkTo(my.branchProperty.upstreamProject), "the upstream")
-                text(", revision ${rebaseSource}, integrated in revision ${rebaseRevision}")
+                text(", revision ${my.rebaseSource}, integrated in revision ${my.rebaseRevision}")
             }
         }
     }
