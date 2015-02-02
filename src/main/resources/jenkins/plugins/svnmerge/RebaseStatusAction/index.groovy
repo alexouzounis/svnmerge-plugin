@@ -20,7 +20,7 @@ l.layout(norefresh:true, title:_("title",my.project.displayName)) {
 
         if (ia==null) {
             p {
-                text("This project has not been rebased yet ")
+                text("This project has not been rebased from ")
                 a(href: Functions.getRelativeLinkTo(my.branchProperty.upstreamProject), "the upstream")
                 text(" yet.")
             }
