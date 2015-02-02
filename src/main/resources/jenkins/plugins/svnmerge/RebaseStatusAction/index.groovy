@@ -1,5 +1,5 @@
 //   Show the last integration status
-package jenkins.plugins.svnmerge.IntegrationStatusAction
+package jenkins.plugins.svnmerge.RebaseStatusAction
 
 import lib.LayoutTagLib
 import lib.JenkinsTagLib
