@@ -16,9 +16,9 @@ l.layout(norefresh:true, title:_("title",my.project.displayName)) {
             text(_("title",my.project.displayName))
         }
 
-        def ia = my.lastRebaseAction;
+        def ra = my.lastRebaseAction;
 
-        if (ia==null) {
+        if (ra==null) {
             p {
                 text("This project has not been rebased from ")
                 a(href: Functions.getRelativeLinkTo(my.branchProperty.upstreamProject), "the upstream")
@@ -27,8 +27,11 @@ l.layout(norefresh:true, title:_("title",my.project.displayName)) {
         } else {
             p {
                 text("Last Rebase was from ")
-                a(href: Functions.getRelativeLinkTo(my.branchProperty.upstreamProject), "the upstream")
-                text(", revision ${my.rebaseSource}, integrated in revision ${my.rebaseRevision}")
+            	if (ra.build!=null){
+                	t.buildLink(jobName:my.branchProperty.owner.name, job:my.branchProperty.owner, number:ra.build.number)
+				} else {
+	                text(", revision ${ra.rebaseSource}, integrated in revision ${ra.rebaseRevision}")
+				}
             }
         }
     }
