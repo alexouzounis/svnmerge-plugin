@@ -41,17 +41,6 @@ l.layout(norefresh:true, title:_("Rebase changes from upstream")) {
 			}
             f.submit(value:_("Rebase"))
         }
-
-        h2 (style:"margin-top:2em", _("Result of Last Rebase"))
-
-		if (my.rebaseRevision>0){
-			tex(_("Rebase source    : ${my.rebaseSource}"))
-			tex(_("Rebase revision  : ${my.rebaseRevision}"))			
-		}
-		
-		if(my.build!=null){
-			t.buildLink(jobName:my.project.name, job:my.project, number:my.build.number)
-		}
  
     }
 }
