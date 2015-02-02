@@ -134,6 +134,7 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
         List<Action> actions = new ArrayList<Action>(2);
         actions.add(new IntegrationStatusAction(this));
         actions.add(new RebaseStatusAction(this));
+        actions.add(new RebaseAction(getOwner()));
         return actions;
     }
 
