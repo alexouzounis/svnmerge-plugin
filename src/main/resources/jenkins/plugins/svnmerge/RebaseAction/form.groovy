@@ -48,6 +48,11 @@ l.layout(norefresh:true, title:_("Rebase changes from upstream")) {
 			tex(_("Rebase source    : ${my.rebaseSource}"))
 			tex(_("Rebase revision  : ${my.rebaseRevision}"))			
 		}
+		
+		if(my.build!=null){
+			t.buildLink(jobName:my.project.name, job:my.project, number:my.build.number)
+		}
+		}
  
     }
 }
