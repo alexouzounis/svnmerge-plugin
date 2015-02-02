@@ -26,12 +26,14 @@ l.layout(norefresh:true, title:_("title",my.project.displayName)) {
             }
         } else {
             p {
-                text("Last Rebase was from ")
             	if (ra.build!=null){
+                	text("Last Rebase build: ")
                 	t.buildLink(jobName:my.branchProperty.owner.name, job:my.branchProperty.owner, number:ra.build.number)
-				} else {
-	                text(", revision ${ra.rebaseSource}, integrated in revision ${ra.rebaseRevision}")
-				}
+				}	
+				text("Last Rebase from ")
+				a(href: Functions.getRelativeLinkTo(my.branchProperty.upstreamProject), "the upstream")
+				text(", revision ${ra.rebaseSource}, integrated in revision ${ra.rebaseRevision} ")
+				
             }
         }
     }
