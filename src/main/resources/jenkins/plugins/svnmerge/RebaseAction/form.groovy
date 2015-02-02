@@ -52,7 +52,6 @@ l.layout(norefresh:true, title:_("Rebase changes from upstream")) {
 		if(my.build!=null){
 			t.buildLink(jobName:my.project.name, job:my.project, number:my.build.number)
 		}
-		}
  
     }
 }
