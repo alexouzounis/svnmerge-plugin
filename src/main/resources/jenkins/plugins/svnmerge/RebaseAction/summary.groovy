@@ -1,16 +1,12 @@
 package jenkins.plugins.svnmerge.RebaseAction
 
-import hudson.Functions
-
 def t = namespace(lib.JenkinsTagLib.class)
 
 // Rebase is complete. Display the record.
 if (my.rebaseRevision!=null && my.rebaseRevision>0){
 	t.summary(icon:"/plugin/svnmerge/48x48/sync.gif") {
-		text(_("Rebase from     :"))
-		a(href: Functions.getRelativeLinkTo(my.project), my.project.name)
-		text(_("	Rebase source   : ${my.rebaseSource}"))
-		text(_("	Rebase revision : ${my.rebaseRevision}"))	
+		text(_("Rebase source   : ${my.rebaseSource}"))
+		text(_("Rebase revision : ${my.rebaseRevision}"))	
 	}		
 }
 

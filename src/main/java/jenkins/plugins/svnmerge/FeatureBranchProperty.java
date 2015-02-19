@@ -12,6 +12,7 @@ import hudson.model.Item;
 import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
 import hudson.model.TaskListener;
+import hudson.model.TopLevelItem;
 import hudson.model.listeners.ItemListener;
 import hudson.remoting.VirtualChannel;
 import hudson.scm.SCM;
@@ -74,6 +75,10 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
      * Upstream job name.
      */
     private String upstream;
+    /**
+     * Upstream job .
+     */
+    private TopLevelItem upstreamjob;
     
     
     @DataBoundConstructor
@@ -82,10 +87,15 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
             throw new NullPointerException("upstream");
         }
         this.upstream = upstream;
+        this.upstreamjob=jenkins.model.Jenkins.getInstance().getItem(upstream);
     }
 
     public String getUpstream() {
         return upstream;
+    }
+    
+    public TopLevelItem getUpstreamJob() {
+        return upstreamjob;
     }
 
     /**
