@@ -5,20 +5,28 @@ def t = namespace(lib.JenkinsTagLib.class)
 // Rebase is complete. Display the record.
 if (my.rebaseRevision!=null && my.rebaseRevision>0){
 	t.summary(icon:"/plugin/svnmerge/48x48/sync.gif") {
-		tex(_("Rebase source   : ${my.rebaseSource}"))
-		tex(_("Rebase revision : ${my.rebaseRevision}"))	
+		p {
+			text(_("Rebase from     :"))
+			a(href: Functions.getRelativeLinkTo(my.project), my.project.name)
+		}
+		p {
+			text(_("Rebase source   : ${my.rebaseSource}"))
+		}
+		p {
+			text(_("Rebase revision : ${my.rebaseRevision}"))	
+		}
 	}		
 }
 
 if (my.rebaseRevision!=null && my.rebaseRevision==-1){
 	t.summary(icon:"/plugin/svnmerge/48x48/sync.gif") {
-		tex(_("Failed to rebase due to a merge conflict"))
+		text(_("Failed to rebase due to a merge conflict"))
 	}
 }
         
 if (my.rebaseRevision!=null && my.rebaseRevision==0){
 	t.summary(icon:"/plugin/svnmerge/48x48/sync.gif") {
-		tex(_("Nothing to rebase"))
+		text(_("Nothing to rebase"))
 	}
 }
         

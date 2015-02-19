@@ -25,15 +25,16 @@ l.layout(norefresh:true, title:_("title",my.project.displayName)) {
                 text(" yet.")
             }
         } else {
-            p {
-            	if (ra.build!=null){
-                	text("Last Rebase build: ")
-                	t.buildLink(jobName:my.branchProperty.owner.name, job:my.branchProperty.owner, number:ra.build.number)
+        	if (ra.build!=null){
+	        	p {
+	            	text("Last Rebase build: ")
+	            	t.buildLink(jobName:my.branchProperty.owner.name, job:my.branchProperty.owner, number:ra.build.number)
 				}	
+			}
+            p {
 				text("Last Rebase from ")
-				a(href: Functions.getRelativeLinkTo(my.branchProperty.upstreamProject), "the upstream")
-				text(", revision ${ra.rebaseSource}, integrated in revision ${ra.rebaseRevision} ")
-				
+				a(href: Functions.getRelativeLinkTo(my.branchProperty.upstreamProject), my.branchProperty.upstreamProject.name)
+				text(", revision ${ra.rebaseSource}, integrated in revision ${ra.rebaseRevision}")	
             }
         }
     }
