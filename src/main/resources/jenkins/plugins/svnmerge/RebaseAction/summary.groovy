@@ -1,5 +1,7 @@
 package jenkins.plugins.svnmerge.RebaseAction
 
+import hudson.Functions
+
 def t = namespace(lib.JenkinsTagLib.class)
 
 // Rebase is complete. Display the record.
