@@ -75,19 +75,13 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
      * Upstream job name.
      */
     private String upstream;
-    /**
-     * Upstream job .
-     */
-    private TopLevelItem upstreamjob;
-    
-    
+
     @DataBoundConstructor
     public FeatureBranchProperty(String upstream) {
         if (upstream == null) {
             throw new NullPointerException("upstream");
         }
         this.upstream = upstream;
-        this.upstreamjob=jenkins.model.Jenkins.getInstance().getItem(upstream);
     }
 
     public String getUpstream() {
@@ -95,7 +89,7 @@ public class FeatureBranchProperty extends JobProperty<AbstractProject<?,?>> imp
     }
     
     public TopLevelItem getUpstreamJob() {
-        return upstreamjob;
+        return jenkins.model.Jenkins.getInstance().getItem(upstream);
     }
 
     /**
